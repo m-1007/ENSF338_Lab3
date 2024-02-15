@@ -4,43 +4,53 @@ import time
 #2.1: Implement and test both algorithms on input of 20 different sizes. 
     # The choice of sizes is yours, but it must be such that it evidences for which sizes each algorithm is faster
 
+# Bubble sort
 def bubble_sort(arr):
     n = len(arr)
     for i in range(n):
-        for j in range(0,n-i-1):
+        swapped = False
+        for j in range(0, n-i-1):
             if arr[j] > arr[j+1]:
-                temp = arr[j]
-                arr[j] = arr[j+1]
-                arr[j+1] = temp
-    return arr 
+                arr[j], arr[j+1] = arr[j+1], arr[j]
+                swapped = True
+        if not swapped:
+            break
 
+# Quicksort
+def quicksort(arr):
+    if len(arr) <= 1:
+        return arr
+    pivot = arr[len(arr) // 2]
+    left = [x for x in arr if x < pivot]
+    middle = [x for x in arr if x == pivot]
+    right = [x for x in arr if x > pivot]
+    return quicksort(left) + middle + quicksort(right)
 
-def partition(arr, low, high):
-    pivot = arr[low] #choose first element as pivot
-    left = low + 1 #index to go from left to right
-    right = high #index to go from right to left
-    done = False
-    while not done:
-        #move left pointer to the right until an element greater than or equal to pivot is found
-        while left <= right and arr[left] <= pivot:
-            left = left + 1
+# Function to measure execution time of a sorting algorithm
+def measure_time(sort_func, arr):
+    start_time = time.time()
+    sort_func(arr)
+    end_time = time.time()
+    return end_time - start_time
 
-        #move right pointer to the left until an element lesser than or equal to pivot is found
-        while arr[right] >= pivot and right >= left:
-            right = right -1
-        if right < left:
-            done = True
-        else:
-            arr[left], arr[right] = arr[right], arr[left]
+# 20 array sizes
+array_sizes = [10, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000, 500000, 1000000, 2000000, 5000000,
+               10000000, 20000000, 50000000]
 
-        #swap the pivot with the element at the right pointer
-        arr[low], arr[right] = arr[right], arr[low]
-        return right
+# Determine the threshold size for switching between bubble sort and quicksort
+threshold = 1000  
+
+# Perform the experiment
+for size in array_sizes:
+    # Generate random input array
+    arr = [random.randint(0, 100) for i in range(size)]
     
-def quick_sort(arr, low, high):
-    if low < high:
-        pivot = partition(arr, low, high)  # Partition the array and get the pivot index
-        quick_sort(arr, low, pivot - 1)     # Recursively sort elements before the pivot
-        quick_sort(arr, pivot + 1, high)    # Recursively sort elements after the pivot
-    return arr
+    # Measure execution time for bubble sort if the array size is below the threshold
+    if size <= threshold:
+        bubble_time = measure_time(bubble_sort, arr.copy())
+        print(f"Bubble sort took {bubble_time:.6f} seconds for array of size {size}")
     
+    # Measure execution time for quicksort if the array size is above the threshold
+    else:
+        quicksort_time = measure_time(quicksort, arr.copy())
+        print(f"Quicksort took {quicksort_time:.6f} seconds for array of size {size}")
