@@ -1,5 +1,5 @@
 import json
-import timeit
+import time
 #7.1: Implement a standard binary search, with the following tweak: 
     # the midpoint for the first iteration must be configurable 
     # (all successive iterations will just split the array in the middle)
@@ -29,15 +29,41 @@ with open('ex7tasks.json', 'r') as file:
     search_tasks = json.load(file)
 
 # 7.2 Time the performance of each search task with different midpoints
+# Define a function to time the binary search
+def time_binary_search(arr, target, start_midpoint):
+    start = time.time()  # get the current time in seconds
+    result_index = binary_search(arr, target, start_midpoint)  # call the binary search function
+    end = time.time()  # get the current time in seconds
+    elapsed = end - start  # calculate the elapsed time in seconds
+    return result_index, elapsed
+
+# list of possible midpoint
+midpoints = [0, len(array) // 4, len(array) // 2]
+
+
+# Loop through each search task and each midpoint
 for task in search_tasks:
-    best_midpoint = None
-    best_time = float('inf')
-    
-    for start_midpoint in range(len(array)):
-        time_taken = timeit.timeit(lambda: binary_search(array, task, start_midpoint), number=100)
+    print(f"Searching for element {task} with different midpoints:")
+    best_midpoint = None  # initialize the best midpoint as None
+    best_time = float('inf')  # initialize the best time as infinity
+    for midpoint in midpoints:
+        result_index, elapsed = time_binary_search(array, task, midpoint)  # time the binary search
+        print(f"Midpoint: {midpoint}, Result index: {result_index}, Elapsed time: {elapsed:.6f} seconds")
         
-        if time_taken < best_time:
-            best_time = time_taken
-            best_midpoint = start_midpoint
-    
-    print(f"For element {task}, the best midpoint is {best_midpoint} with an average time of {best_time / 100:.6f} seconds per search")
+        if result_index == -1:
+            print("Element not found in the array.")
+            break  # exit the loop if the element is not found
+        
+        if result_index > 0 and array[result_index - 1] == task:
+            print(f"Potential earlier occurrence found at index {result_index - 1}.")
+        
+        if elapsed < best_time:  # update the best midpoint and time if the current one is better
+            best_midpoint = midpoint
+            best_time = elapsed
+    print(f"Best midpoint for element {task} is {best_midpoint} with elapsed time {best_time:.6f} seconds\n")
+
+# Check if there are remaining search tasks
+if not search_tasks:
+    print("All search tasks have been processed.")
+else:
+    print(f"Remaining search tasks: {search_tasks}")
