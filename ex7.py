@@ -1,8 +1,9 @@
 import json
-
+import timeit
 #7.1: Implement a standard binary search, with the following tweak: 
     # the midpoint for the first iteration must be configurable 
     # (all successive iterations will just split the array in the middle)
+
 
 # Binary search function
 def binary_search(arr, target, start_midpoint=0):
@@ -27,14 +28,16 @@ with open('ex7data.json', 'r') as file:
 with open('ex7tasks.json', 'r') as file:
     search_tasks = json.load(file)
 
-# Define the configurable starting midpoint
-start_midpoint = 0  # can be any value?
-
-# Perform binary search for each search task
+# 7.2 Time the performance of each search task with different midpoints
 for task in search_tasks:
-    result_index = binary_search(array, task, start_midpoint)
-    if result_index != -1:
-        print(f"Element {task} found at index {result_index}")
-    else:
-        print(f"Element {task} not found in the array")
-
+    best_midpoint = None
+    best_time = float('inf')
+    
+    for start_midpoint in range(len(array)):
+        time_taken = timeit.timeit(lambda: binary_search(array, task, start_midpoint), number=100)
+        
+        if time_taken < best_time:
+            best_time = time_taken
+            best_midpoint = start_midpoint
+    
+    print(f"For element {task}, the best midpoint is {best_midpoint} with an average time of {best_time / 100:.6f} seconds per search")
