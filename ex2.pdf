@@ -1,7 +1,0 @@
-#2.4: Since quicksort consistently outperforms bubble sort for all array sizes in the worst and average cases, we can focus on the best case scenario to determine the threshold.
-# From the best case scenario plot, we observe that bubble sort's performance starts to degrade noticeably as the array size increases beyond approximately 3000 elements. 
-# Therefore, we could consider a threshold of around 3000 elements.
-# However, since bubble sort's performance advantage over quicksort is relatively small even for small array sizes, and quicksort performs consistently better overall,
-# it might be more practical to set the threshold slightly higher to benefit from quicksort's efficiency.
-# Based on the analysis and to ensure a clear advantage for quicksort, we could choose a threshold of around 5000 elements.
-# Therefore, I would choose a threshold of 5000 elements based on the plots' analysis and the practical benefits of leveraging quicksort's efficiency for larger array sizes.
