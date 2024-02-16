@@ -1,5 +1,6 @@
 import json
 import time
+import matplotlib.pyplot as plt
 #7.1: Implement a standard binary search, with the following tweak: 
     # the midpoint for the first iteration must be configurable 
     # (all successive iterations will just split the array in the middle)
@@ -40,6 +41,8 @@ def time_binary_search(arr, target, start_midpoint):
 # list of possible midpoint
 midpoints = [0, len(array) // 4, len(array) // 2]
 
+# Scatter plot data
+scatter_data = {'midpoints': [], 'times': []}
 
 # Loop through each search task and each midpoint
 for task in search_tasks:
@@ -60,6 +63,11 @@ for task in search_tasks:
         if elapsed < best_time:  # update the best midpoint and time if the current one is better
             best_midpoint = midpoint
             best_time = elapsed
+            
+        # Append data for scatter plot
+        scatter_data['midpoints'].append(midpoint)
+        scatter_data['times'].append(elapsed)
+        
     print(f"Best midpoint for element {task} is {best_midpoint} with elapsed time {best_time:.6f} seconds\n")
 
 # Check if there are remaining search tasks
@@ -67,3 +75,18 @@ if not search_tasks:
     print("All search tasks have been processed.")
 else:
     print(f"Remaining search tasks: {search_tasks}")
+
+# 7.3 Produce a scatterplot visualizing each task and the corresponding chosen midpoint [0.2 pts]
+plt.scatter(scatter_data['midpoints'], scatter_data['times'], label='Search Performance')
+plt.xlabel('Midpoints')
+plt.ylabel('Elapsed Time (seconds)')
+plt.title('Binary Search Performance with Different Midpoints')
+plt.legend()
+plt.show()
+
+# 7.4 Comment on the graph. Does the choice of initial midpoint appear to affect performance? Why do you think is that? [0.2 pts]
+
+# The choice of the initial midpoint can in fact affect performance. The scatterplot shows variations
+# in search times for different initial midpoints. Some midpoints may lead to faster convergence, while others
+# may result in longer search times. The optimal initial midpoint may depend on the specific characteristics
+# of the array and the element being searched. 
