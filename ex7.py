@@ -24,51 +24,99 @@ def binary_search(arr, target, start, end):
         else:
             end = mid - 1
             
-    return -1
+    return False
 
-# Load array and search tasks from JSON files
-with open('ex7data.json', 'r') as file:
-    array = json.load(file)
-
-with open('ex7tasks.json', 'r') as file:
-    search_tasks = json.load(file)
-
-# 7.2 Time the performance of each search task with different midpoints
-# Define a function to time the binary search
-def time_binary_search(arr, target, start_midpoint):
-    start = time.time()  # get the current time in seconds
-    result_index = binary_search(arr, target, start_midpoint)  # call the binary search function
-    end = time.time()  # get the current time in seconds
-    elapsed = end - start  # calculate the elapsed time in seconds
-    return result_index, elapsed
-
-# list of possible midpoint
-midpoints = [0, len(array) // 4, len(array) // 2]
+def binary_search_with_changable_mid(arr, target, start_midpoint):
+    start = 0
+    end = len(arr) - 1
+    mid = start_midpoint
+    if arr[mid] == target:
+        return True
+    elif arr[mid] < target:
+        return binary_search(arr, target, mid + 1, end)
+    else:
+        return binary_search(arr, target, start, mid - 1)
 
 
-# Loop through each search task and each midpoint
-for task in search_tasks:
-    print(f"Searching for element {task} with different midpoints:")
-    best_midpoint = None  # initialize the best midpoint as None
-    best_time = float('inf')  # initialize the best time as infinity
-    for midpoint in midpoints:
-        result_index, elapsed = time_binary_search(array, task, midpoint)  # time the binary search
-        print(f"Midpoint: {midpoint}, Result index: {result_index}, Elapsed time: {elapsed:.6f} seconds")
-        
-        if result_index == -1:
-            print("Element not found in the array.")
-            break  # exit the loop if the element is not found
-        
-        if result_index > 0 and array[result_index - 1] == task:
-            print(f"Potential earlier occurrence found at index {result_index - 1}.")
-        
-        if elapsed < best_time:  # update the best midpoint and time if the current one is better
-            best_midpoint = midpoint
-            best_time = elapsed
-    print(f"Best midpoint for element {task} is {best_midpoint} with elapsed time {best_time:.6f} seconds\n")
+def main():
+    array_data = read_json("ex7data.json")
+    task_data = read_json("ex7tasks.json")
+    array = array_data
+    task = task_data
 
-# Check if there are remaining search tasks
-if not search_tasks:
-    print("All search tasks have been processed.")
-else:
-    print(f"Remaining search tasks: {search_tasks}")
+    all_times = {}
+
+    num_midpoint = 1000
+
+    for task_index, target in enumerate(task, start=1):
+
+        print(f"Processing task {task_index}/{len(task)}")
+
+        all_times [target] = []
+
+        step_size = len(array) // num_midpoint
+
+
+        total_iterations = num_midpoint
+
+        for i in range(0, len(array), step_size):
+
+            print(f"  Iteration {i//step_size + 1}/{total_iterations}", end="\r")
+            start_time = time.time()
+
+            binary_search_with_changable_mid(array, target, 1)
+
+            end_time = time.time()
+
+            elapsed_time = end_time - start_time
+
+            all_times [target].append(elapsed_time) 
+            print() # Print newline after each task
+
+    best_midpoint = {}
+
+    for target, times in all_times.items():
+
+        best_index = min(range(len(times)), key=times.__getitem__)
+        best_midpoint[target] = best_index * step_size
+        best_time = float('inf')
+        for i in range(max(0, best_index - 1) * step_size, min(len(array) ,(best_index + 2) * step_size), step_size // 2):
+
+            start_time = time.time()
+
+            binary_search_with_changable_mid(array, target, i)
+
+            end_time = time.time()
+
+            elapsed_time = end_time - start_time
+
+            if elapsed_time < best_time:
+
+                best_time = elapsed_time
+
+                best_midpoint[target] = i
+
+    for target, best_index in best_midpoint.items():
+
+        print(f"For target {target}, best midpoint is {best_index} with time {all_times[target] [best_index // step_size]:.6f} seconds.")
+
+    tasks_list = list(task)
+
+    best_midpoints_list = [best_midpoint[task] for task in tasks_list]
+
+
+    plt.figure(figsize = (10,6))
+    plt.scatter(tasks_list, best_midpoints_list)
+    plt.title('Task versus Best Midpoint')
+    plt.xlabel('Task')
+    plt.ylabel('Best Midpoint')
+    plt.show()
+
+if __name__ == "__main__":
+    main()
+# 7.4 Comment on the graph. Does the choice of initial midpoint appear to affect performance? Why do you think is that? [0.2 pts]
+
+# The choice of the initial midpoint can in fact affect performance. The scatterplot shows variations
+# in search times for different initial midpoints. Some midpoints may lead to faster convergence, while others
+# may result in longer search times. The optimal initial midpoint may depend on the specific characteristics
+# of the array and the element being searched. 
